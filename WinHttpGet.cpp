@@ -14,27 +14,18 @@ CWinHttpGet::~CWinHttpGet(void)
 
 BOOL CWinHttpGet::PostRequest(LPCTSTR lpszUrl)
 {
-    if(NULL != m_hEventWait)
-    {
-        ::SetEvent(m_hEventWait);
-        ::CloseHandle(m_hEventWait);
-    }
-
-    m_hEventWait =::CreateEvent(NULL, TRUE, FALSE, NULL);
-
-    if(NULL == m_hEventWait)
-        return FALSE;
-
     m_sResponse.Empty();
 
-    CWinHttpHeader httpHeader;
-    httpHeader.SetUrl(lpszUrl);
-
-    if(Create(&httpHeader))
+    if(CreateEvent())
     {
-        if(SendRequest())
+        CWinHttpHeader httpHeader(lpszUrl);
+
+        if(Create(&httpHeader))
         {
-            return TRUE;
+            if(SendRequest())
+            {
+                return TRUE;
+            }
         }
     }
 
@@ -66,12 +57,27 @@ void CWinHttpGet::OnDataArrived(REQUEST_STATUS status, LPVOID lpCurBuf, DWORD dw
 
 void CWinHttpGet::Close()
 {
+    CloseEvent();
+    __super::Close();
+}
+
+BOOL CWinHttpGet::CreateEvent()
+{
+    CloseEvent();
+
+    if(NULL == m_hEventWait)
+    {
+        m_hEventWait =::CreateEvent(NULL, TRUE, FALSE, NULL);
+    }
+
+    return (NULL != m_hEventWait);
+}
+
+void CWinHttpGet::CloseEvent()
+{
     if(NULL != m_hEventWait)
     {
-        ::SetEvent(m_hEventWait);
         ::CloseHandle(m_hEventWait);
         m_hEventWait = NULL;
     }
-
-    __super::Close();
 }

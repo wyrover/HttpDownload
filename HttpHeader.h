@@ -3,15 +3,16 @@
 class CWinHttpHeader
 {
 public:
-    CWinHttpHeader(void);
+    CWinHttpHeader(LPCTSTR lpszUrl);
     virtual ~CWinHttpHeader(void);
 
     void AddHeader(LPCTSTR lpszHeader);
-    void SetUrl(LPCTSTR lpszUrl);
     void SetUserAgent(LPCTSTR lpszUserAgent);
     CString GetHeader()const;
     CString GetUrl()const;
-    CString GetUserAgent()const;
+    CString GetUserAgent()const; 
+protected:
+	void SetUrl(LPCTSTR lpszUrl);
 private:
     CString m_sHeader;
     CString m_sUrl;

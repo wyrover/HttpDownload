@@ -16,7 +16,7 @@ enum REQUEST_STATUS
     REQUEST_HEADERS_AVAILABLE,
     REQUEST_READING,
     REQUEST_READCOMPLATE,
-	REQUEST_USERCANCEL,
+    REQUEST_USERCANCEL,
     REQUEST_READERROR
 };
 
@@ -29,9 +29,9 @@ public:
 
     void SetProxy(CWinHttpProxy* pHttpProxy);
     BOOL Create(CWinHttpHeader* pHttpHeader);
-    BOOL SendRequest();
+    BOOL SendRequest(LPVOID lpOptional = NULL, DWORD dwOptionalLength = NULL);
     void Close();
-	void CancelRequest();
+    void CancelRequest();
 protected:
     virtual void OnDataArrived(REQUEST_STATUS status, LPVOID lpCurBuf, DWORD dwCurSize) {};
 protected:
@@ -48,6 +48,6 @@ private:
     CWinHttpHeader* m_pHttpHeader;
     CWinHttpProxy* m_pHttpProxy;
     VERB_TYPE m_verbType;
-	BOOL m_bUserCancel;		// 在接收数据过程中,用户取消HTTP请求
+    BOOL m_bUserCancel;     // 在接收数据过程中,用户取消HTTP请求
 };
 

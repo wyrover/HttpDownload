@@ -26,6 +26,7 @@ BOOL CWinHttpRequest::Create(CWinHttpHeader* pHttpHeader)
     // 创建SESSION
     m_hSession = WinHttpOpen(_T("CWinHttpRequest/1.0"), WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME,
                              WINHTTP_NO_PROXY_BYPASS, WINHTTP_FLAG_ASYNC);
+
     if(NULL == m_hSession)
         return FALSE;
 
@@ -34,11 +35,13 @@ BOOL CWinHttpRequest::Create(CWinHttpHeader* pHttpHeader)
     INTERNET_PORT nPort = 80;
     CString sRelativePath;
     INTERNET_SCHEME sScheme = 0;
+
     if(!GetUrlComponent(sHost, nPort, sRelativePath, sScheme))
         return FALSE;
 
     // 创建CONNECT
     m_hConnect = WinHttpConnect(m_hSession, sHost, nPort, 0);
+
     if(NULL == m_hConnect)
         return FALSE;
 
@@ -46,13 +49,16 @@ BOOL CWinHttpRequest::Create(CWinHttpHeader* pHttpHeader)
     DWORD dwOpenFlag = (INTERNET_SCHEME_HTTPS == sScheme) ? WINHTTP_FLAG_SECURE : 0;
     m_hRequest = WinHttpOpenRequest(m_hConnect, GetVerbText(), sRelativePath, NULL,
                                     WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, dwOpenFlag | WINHTTP_FLAG_REFRESH) ;
+
     if(NULL == m_hRequest)
         return FALSE;
 
     CString sHttpHeader = m_pHttpHeader->GetHeader();
+
     if(!sHttpHeader.IsEmpty())
     {
         BOOL bAdd = WinHttpAddRequestHeaders(m_hRequest, sHttpHeader, sHttpHeader.GetLength(), WINHTTP_ADDREQ_FLAG_ADD /*| WINHTTP_ADDREQ_FLAG_REPLACE*/);
+
         if(!bAdd)
             return FALSE;
     }
@@ -60,15 +66,16 @@ BOOL CWinHttpRequest::Create(CWinHttpHeader* pHttpHeader)
     // 设置回调函数
     WINHTTP_STATUS_CALLBACK pCallback = WinHttpSetStatusCallback(m_hRequest, WinHttpStatusCallback,
                                         WINHTTP_CALLBACK_FLAG_ALL_COMPLETIONS | WINHTTP_CALLBACK_FLAG_REDIRECT,    NULL);
+
     if(WINHTTP_INVALID_STATUS_CALLBACK == pCallback)
         return FALSE;
 
     return TRUE;
 }
 
-BOOL CWinHttpRequest::SendRequest()
+BOOL CWinHttpRequest::SendRequest(LPVOID lpOptional, DWORD dwOptionalLength)
 {
-    return WinHttpSendRequest(m_hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, (DWORD_PTR)this);
+    return WinHttpSendRequest(m_hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, lpOptional, dwOptionalLength, dwOptionalLength, (DWORD_PTR)this);
 }
 
 void CWinHttpRequest::Close()
@@ -106,12 +113,15 @@ CString CWinHttpRequest::GetVerbText() const
     {
         case VERB_TYPE_GET :
             return _T("GET") ;
+
         case VERB_TYPE_POST :
         case VERB_TYPE_POST_MULTIPART :
             return _T("POST") ;
+
         case VERB_TYPE_DELETE :
             return _T("DELETE") ;
     }
+
     return _T("GET") ;
 }
 
@@ -124,6 +134,7 @@ BOOL CWinHttpRequest::ReadData(LPVOID lpOutBuffer, DWORD dwBufSize)
     {
         return FALSE;
     }
+
     return TRUE;
 }
 
@@ -144,6 +155,7 @@ void CWinHttpRequest::_WinHttpStatusCallback(DWORD dwInternetStatus, LPVOID lpvS
         case WINHTTP_CALLBACK_STATUS_SENDREQUEST_COMPLETE:
         {
             OutputDebugString(_T("请求发送成功\r\n"));
+
             if(WinHttpReceiveResponse(m_hRequest, NULL) == FALSE)
             {
                 Close();
@@ -158,6 +170,7 @@ void CWinHttpRequest::_WinHttpStatusCallback(DWORD dwInternetStatus, LPVOID lpvS
             // 查询文件长度
             DWORD dwFileLen = 0;
             DWORD dwbufLen = sizeof(DWORD);
+
             if(WinHttpQueryHeaders(m_hRequest, WINHTTP_QUERY_CONTENT_LENGTH | WINHTTP_QUERY_FLAG_NUMBER,
                                    WINHTTP_HEADER_NAME_BY_INDEX, &dwFileLen, &dwbufLen, WINHTTP_NO_HEADER_INDEX))
             {
@@ -186,10 +199,12 @@ void CWinHttpRequest::_WinHttpStatusCallback(DWORD dwInternetStatus, LPVOID lpvS
             {
                 BYTE* pBuf = new BYTE[dwDataSize + 1];
                 ZeroMemory(pBuf, dwDataSize + 1);
+
                 if(!ReadData(pBuf, dwDataSize))
                 {
                     Close();
                 }
+
                 delete[] pBuf;
                 pBuf = NULL;
             }
@@ -208,10 +223,12 @@ void CWinHttpRequest::_WinHttpStatusCallback(DWORD dwInternetStatus, LPVOID lpvS
                 Close();
                 break;
             }
+
             if(!WinHttpQueryDataAvailable(m_hRequest, NULL))
             {
                 Close();
             }
+
             break;
         }
 

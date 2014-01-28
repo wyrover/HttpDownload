@@ -8,8 +8,10 @@ public:
     CWinHttpGet(void);
     virtual ~CWinHttpGet(void);
     BOOL PostRequest(LPCTSTR lpszUrl);
-    CStringA GetResponse(DWORD dwTimeout = 5000)const;
+    CStringA GetResponse(DWORD dwTimeout = INFINITE)const;
 protected:
+	BOOL CreateEvent();
+	void CloseEvent();
     void Close();
     virtual void OnDataArrived(REQUEST_STATUS status, LPVOID lpCurBuf, DWORD dwCurSize);
 private:

@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "HttpHeader.h"
 
-CWinHttpHeader::CWinHttpHeader(void)
+CWinHttpHeader::CWinHttpHeader(LPCTSTR lpszUrl)
 {
+	SetUrl(lpszUrl);
 }
 
 
@@ -15,7 +16,7 @@ CWinHttpHeader::~CWinHttpHeader(void)
 
 void CWinHttpHeader::AddHeader(LPCTSTR lpszHeader)
 {
-    m_sHeader.AppendFormat(_T("%s"), lpszHeader);
+    m_sHeader.AppendFormat(_T("%s\r\n"), lpszHeader);
 }
 
 void CWinHttpHeader::SetUrl(LPCTSTR lpszUrl)

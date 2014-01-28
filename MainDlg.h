@@ -6,6 +6,7 @@
 #include "DownloadFile.h"
 #include <atlctrls.h>
 #include "WinHttpGet.h"
+#include "WinHttpPost.h"
 
 class CMainDlg : public CDialogImpl<CMainDlg>
 {
@@ -103,12 +104,25 @@ public:
         return lpwBuf;
     }
 
+    void Test_GET()
+    {
+        m_httpGet.PostRequest(_T("http://www.baidu.com"));
+        CStringA sRes = m_httpGet.GetResponse();
+        CString s = Utf8ToUnicode(sRes);
+    }
+
+    void Test_POST()
+    {
+        CWinHttpPost httpPost;
+        const TCHAR* postUrl = _T("http://www.sxddck.com/admin/login.php");
+        const TCHAR* postParam = _T("username=admin&password=admin&Submit=µÇÂ½");
+        httpPost.PostRequest(postUrl, postParam);
+        CStringA sRes = httpPost.GetResponse();
+        CString s = Utf8ToUnicode(sRes);
+    }
+
     LRESULT OnStartDwonload(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
-        m_httpGet.PostRequest(_T("http://www.163.com"));
-        CStringA sRes = m_httpGet.GetResponse(INFINITE);
-        CString s = Utf8ToUnicode(sRes);
-
         CEdit editUrl = GetDlgItem(IDC_EDIT1);
         CEdit editSavePath = GetDlgItem(IDC_EDIT2);
         CString sUrl;
@@ -151,6 +165,9 @@ public:
         const TCHAR* sSavePath = _T("test.exe");
         CEdit editSavePath = GetDlgItem(IDC_EDIT2);
         editSavePath.SetWindowText(sSavePath);
+
+        Test_POST();
+//      Test_GET();
         return TRUE;
     }
 

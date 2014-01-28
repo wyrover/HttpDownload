@@ -62,15 +62,14 @@ BOOL CDownloadFile::DownloadFile(LPCTSTR lpszUrl, LPCTSTR lpszSavePath)
 {
     m_sFilePath = lpszSavePath;
 
-    CWinHttpHeader httpHeader;
-    httpHeader.SetUrl(lpszUrl);
+    CWinHttpHeader httpHeader(lpszUrl);
 
     DWORD dwContinueIndex = 0;
 
     if(GetContinueLen(dwContinueIndex))
     {
         CString sRange;
-        sRange.Format(_T("Range: bytes=%d-\r\n"), dwContinueIndex);
+        sRange.Format(_T("Range: bytes=%d-"), dwContinueIndex);
         httpHeader.AddHeader(sRange);
     }
 
