@@ -52,7 +52,7 @@ BOOL CWinHttpRequest::Create(CWinHttpHeader* pHttpHeader)
     CString sHttpHeader = m_pHttpHeader->GetHeader();
     if(!sHttpHeader.IsEmpty())
     {
-        BOOL bAdd = WinHttpAddRequestHeaders(m_hRequest, sHttpHeader, sHttpHeader.GetLength(), WINHTTP_ADDREQ_FLAG_ADD | WINHTTP_ADDREQ_FLAG_REPLACE);
+        BOOL bAdd = WinHttpAddRequestHeaders(m_hRequest, sHttpHeader, sHttpHeader.GetLength(), WINHTTP_ADDREQ_FLAG_ADD /*| WINHTTP_ADDREQ_FLAG_REPLACE*/);
         if(!bAdd)
             return FALSE;
     }

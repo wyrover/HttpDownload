@@ -40,13 +40,13 @@
     <IntDir>Debug\</IntDir>
     <OutDir>Debug\</OutDir>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>G:\ThirdPartLib\WTL\include;$(IncludePath)</IncludePath>
+    <IncludePath>G:\Project\ThirdPartLib\c\WTL80\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>Release\</IntDir>
     <OutDir>Release\</OutDir>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>G:\ThirdPartLib\WTL\include;$(IncludePath)</IncludePath>
+    <IncludePath>G:\Project\ThirdPartLib\c\WTL80\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -121,6 +121,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WinHttpBase.cpp" />
+    <ClCompile Include="WinHttpGet.cpp" />
+    <ClCompile Include="WinHttpPost.cpp" />
     <ClCompile Include="WinHttpRequest.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +134,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="WinHttpBase.h" />
+    <ClInclude Include="WinHttpGet.h" />
+    <ClInclude Include="WinHttpPost.h" />
     <ClInclude Include="WinHttpRequest.h" />
   </ItemGroup>
   <ItemGroup>

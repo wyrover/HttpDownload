@@ -36,6 +36,12 @@
     <ClCompile Include="DownloadFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinHttpGet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WinHttpPost.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -63,6 +69,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DownloadFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinHttpGet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinHttpPost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

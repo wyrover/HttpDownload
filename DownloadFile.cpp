@@ -3,7 +3,8 @@
 #include <assert.h>
 
 
-CDownloadFile::CDownloadFile(void): m_hFile(INVALID_HANDLE_VALUE), m_dwTotalFileSize(0), m_dwDownloaded(0)
+CDownloadFile::CDownloadFile(void): CWinHttpRequest(VERB_TYPE_GET),
+    m_hFile(INVALID_HANDLE_VALUE), m_dwTotalFileSize(0), m_dwDownloaded(0)
 {
 }
 
@@ -22,6 +23,7 @@ void CDownloadFile::OnDataArrived(REQUEST_STATUS status, LPVOID lpCurBuf, DWORD 
     else if(REQUEST_READING == status)
     {
         DWORD dwWrited = 0;
+
         if(!WriteFile(m_hFile, lpCurBuf, dwCurSize, &dwWrited, NULL))
         {
             if(!ERROR_IO_PENDING == GetLastError())
@@ -29,6 +31,7 @@ void CDownloadFile::OnDataArrived(REQUEST_STATUS status, LPVOID lpCurBuf, DWORD 
                 return ;
             }
         }
+
         m_dwDownloaded += dwWrited;
     }
     else if(REQUEST_HEADERS_AVAILABLE == status)
@@ -38,6 +41,7 @@ void CDownloadFile::OnDataArrived(REQUEST_STATUS status, LPVOID lpCurBuf, DWORD 
         assert(INVALID_HANDLE_VALUE == m_hFile);
 
         DWORD dwContinueIndex = 0;
+
         if(GetContinueLen(dwContinueIndex))
         {
             m_hFile =::CreateFile(m_sFilePath, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -62,6 +66,7 @@ BOOL CDownloadFile::DownloadFile(LPCTSTR lpszUrl, LPCTSTR lpszSavePath)
     httpHeader.SetUrl(lpszUrl);
 
     DWORD dwContinueIndex = 0;
+
     if(GetContinueLen(dwContinueIndex))
     {
         CString sRange;
@@ -76,6 +81,7 @@ BOOL CDownloadFile::DownloadFile(LPCTSTR lpszUrl, LPCTSTR lpszSavePath)
             return TRUE;
         }
     }
+
     return FALSE;
 }
 
@@ -102,6 +108,7 @@ void CDownloadFile::Close()
         CloseHandle(m_hFile);
         m_hFile = INVALID_HANDLE_VALUE;
     }
+
     __super::Close();
 }
 
@@ -112,13 +119,16 @@ BOOL CDownloadFile::GetContinueLen(DWORD& dwContinueIndex)
         HANDLE hFile = INVALID_HANDLE_VALUE;
         DWORD dwFileSize = 0;
         hFile = CreateFile(m_sFilePath, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
         if(hFile == INVALID_HANDLE_VALUE)
             return 0;
+
         dwFileSize = GetFileSize(hFile, NULL);
         dwContinueIndex = dwFileSize;
         CloseHandle(hFile);
         hFile = INVALID_HANDLE_VALUE;
         return (0 != dwContinueIndex);
     }
+
     return FALSE;
 }

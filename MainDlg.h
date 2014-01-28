@@ -5,6 +5,7 @@
 #pragma once
 #include "DownloadFile.h"
 #include <atlctrls.h>
+#include "WinHttpGet.h"
 
 class CMainDlg : public CDialogImpl<CMainDlg>
 {
@@ -13,6 +14,7 @@ private:
     CDownloadFile m_downloadFile;
 //  CDownloadFile* m_pDownloadFile;
     CProgressBarCtrl m_progressCtrl;
+    CWinHttpGet m_httpGet;
 public:
     enum { IDD = IDD_MAINDLG };
 
@@ -71,8 +73,42 @@ public:
         return 0;
     }
 
+    CStringW Utf8ToUnicode(CStringA lpszUtf8)
+    {
+        LPWSTR lpwBuf = NULL;
+
+        try
+        {
+            //得到转换后的字符串长度
+            DWORD dwBufLen = MultiByteToWideChar(CP_UTF8, 0, lpszUtf8, -1, NULL, NULL);
+            //new buffer
+            lpwBuf = new wchar_t[dwBufLen];
+
+            if(NULL == lpwBuf)
+            {
+                return _T("");
+            }
+
+            memset(lpwBuf, 0, dwBufLen * sizeof(wchar_t));
+            MultiByteToWideChar(CP_UTF8, 0, lpszUtf8, -1, lpwBuf, dwBufLen);
+            CStringW s = lpwBuf;
+            delete[] lpwBuf;
+            return s;
+        }
+        catch(...)
+        {
+            return _T("");
+        }
+
+        return lpwBuf;
+    }
+
     LRESULT OnStartDwonload(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
+        m_httpGet.PostRequest(_T("http://www.163.com"));
+        CStringA sRes = m_httpGet.GetResponse(INFINITE);
+        CString s = Utf8ToUnicode(sRes);
+
         CEdit editUrl = GetDlgItem(IDC_EDIT1);
         CEdit editSavePath = GetDlgItem(IDC_EDIT2);
         CString sUrl;
@@ -84,6 +120,8 @@ public:
         m_downloadFile.DownloadFile(sUrl, sSavePath);
         return 0;
     }
+
+
 
     LRESULT OnStopDwonload(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
