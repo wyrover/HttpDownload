@@ -32,6 +32,7 @@ public:
     BOOL SendRequest(LPVOID lpOptional = NULL, DWORD dwOptionalLength = NULL);
     void Close();
     void CancelRequest();
+    DWORD GetStatusCode()const;
 protected:
     virtual void OnDataArrived(REQUEST_STATUS status, LPVOID lpCurBuf, DWORD dwCurSize) {};
 protected:
@@ -49,5 +50,6 @@ private:
     CWinHttpProxy* m_pHttpProxy;
     VERB_TYPE m_verbType;
     BOOL m_bUserCancel;     // 在接收数据过程中,用户取消HTTP请求
+    DWORD m_dwStatusCode;   // HTTP请求状态码
 };
 

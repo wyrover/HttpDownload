@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <vector>
 CWinHttpRequest::CWinHttpRequest(VERB_TYPE verbType): m_hSession(NULL), m_hConnect(NULL),
-    m_hRequest(NULL), m_pHttpHeader(NULL), m_verbType(verbType), m_bUserCancel(FALSE)
+    m_hRequest(NULL), m_pHttpHeader(NULL), m_verbType(verbType), m_bUserCancel(FALSE), m_dwStatusCode(0)
 {
 
 }
@@ -175,6 +175,15 @@ void CWinHttpRequest::_WinHttpStatusCallback(DWORD dwInternetStatus, LPVOID lpvS
                                    WINHTTP_HEADER_NAME_BY_INDEX, &dwFileLen, &dwbufLen, WINHTTP_NO_HEADER_INDEX))
             {
                 OnDataArrived(REQUEST_HEADERS_AVAILABLE, NULL, dwFileLen);
+            }
+
+            // ²éÑ¯·µ»Ø×´Ì¬Âë
+            DWORD statusCodeSize = sizeof(DWORD);
+
+            if(!::WinHttpQueryHeaders(m_hRequest, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+                                      WINHTTP_HEADER_NAME_BY_INDEX, &m_dwStatusCode, &statusCodeSize, WINHTTP_NO_HEADER_INDEX))
+            {
+                Close();
             }
 
             if(!WinHttpQueryDataAvailable(m_hRequest, NULL))

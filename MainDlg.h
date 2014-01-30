@@ -15,7 +15,8 @@ private:
     CDownloadFile m_downloadFile;
 //  CDownloadFile* m_pDownloadFile;
     CProgressBarCtrl m_progressCtrl;
-    CWinHttpGet m_httpGet;
+    VERB_TYPE m_verbType;
+
 public:
     enum { IDD = IDD_MAINDLG };
 
@@ -27,6 +28,9 @@ public:
     COMMAND_ID_HANDLER(IDC_START_DOWNLOAD, OnStartDwonload)
     COMMAND_ID_HANDLER(IDC_STOP_DOWNLOAD, OnStopDwonload)
     COMMAND_ID_HANDLER(IDC_QUIT, OnCancel)
+    COMMAND_ID_HANDLER(IDC_BTN_SUBMIT, OnSubmit)
+    COMMAND_HANDLER(IDC_RADIO1, BN_CLICKED, OnBnClickedRadio1)
+    COMMAND_HANDLER(IDC_RADIO2, BN_CLICKED, OnBnClickedRadio2)
     END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -106,7 +110,9 @@ public:
 
     void Test_GET()
     {
-        m_httpGet.PostRequest(_T("http://www.baidu.com"));
+        const TCHAR* sUrl = _T("http://localhost/index.php");
+        CWinHttpGet m_httpGet;
+        m_httpGet.PostRequest(sUrl);
         CStringA sRes = m_httpGet.GetResponse();
         CString s = Utf8ToUnicode(sRes);
     }
@@ -115,7 +121,7 @@ public:
     {
         CWinHttpPost httpPost;
         const TCHAR* postUrl = _T("http://www.sxddck.com/admin/login.php");
-        const TCHAR* postParam = _T("username=admin&password=admin&Submit=µÇÂ½");
+        const TCHAR* postParam = _T("username=admin&password=admin&verifycode=&Submit=%E7%99%BB+%E9%99%86");
         httpPost.PostRequest(postUrl, postParam);
         CStringA sRes = httpPost.GetResponse();
         CString s = Utf8ToUnicode(sRes);
@@ -123,6 +129,9 @@ public:
 
     LRESULT OnStartDwonload(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
+        Test_POST();
+//      Test_GET();
+        return 0;
         CEdit editUrl = GetDlgItem(IDC_EDIT1);
         CEdit editSavePath = GetDlgItem(IDC_EDIT2);
         CString sUrl;
@@ -134,8 +143,6 @@ public:
         m_downloadFile.DownloadFile(sUrl, sSavePath);
         return 0;
     }
-
-
 
     LRESULT OnStopDwonload(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
@@ -166,8 +173,9 @@ public:
         CEdit editSavePath = GetDlgItem(IDC_EDIT2);
         editSavePath.SetWindowText(sSavePath);
 
-        Test_POST();
-//      Test_GET();
+        m_verbType = VERB_TYPE_GET;
+        CButton btnRadio = GetDlgItem(IDC_RADIO1);
+        btnRadio.SetCheck(BST_CHECKED);
         return TRUE;
     }
 
@@ -188,6 +196,56 @@ public:
     LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
         EndDialog(wID);
+        return 0;
+    }
+
+    LRESULT OnSubmit(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        CString sUrl;
+        CEdit editUrl = GetDlgItem(IDC_EDIT3);
+        editUrl.GetWindowText(sUrl);
+
+        CString sParam;
+        CEdit editParam = GetDlgItem(IDC_EDIT4);
+        editParam.GetWindowText(sParam);
+
+        CStringA sTemp;
+        CString sResult;
+
+        if(VERB_TYPE_GET == m_verbType)
+        {
+            CWinHttpGet m_httpGet;
+
+            if(m_httpGet.PostRequest(sUrl))
+            {
+                sTemp = m_httpGet.GetResponse();
+                sResult = Utf8ToUnicode(sTemp);
+            }
+        }
+        else if(VERB_TYPE_POST == m_verbType)
+        {
+            CWinHttpPost httpPost;
+
+            if(httpPost.PostRequest(sUrl, sParam))
+            {
+                sTemp = httpPost.GetResponse();
+                sResult = Utf8ToUnicode(sTemp);
+            }
+        }
+
+        CEdit editResult = GetDlgItem(IDC_EDIT5);
+        editResult.SetWindowText(CA2W(sTemp));
+        return 0;
+    }
+    LRESULT OnBnClickedRadio1(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        m_verbType = VERB_TYPE_GET;
+        return 0;
+    }
+
+    LRESULT OnBnClickedRadio2(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    {
+        m_verbType = VERB_TYPE_POST;
         return 0;
     }
 };
