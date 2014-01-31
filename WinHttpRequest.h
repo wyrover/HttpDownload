@@ -27,7 +27,7 @@ public:
     CWinHttpRequest(VERB_TYPE verbType = VERB_TYPE_GET);
     virtual ~CWinHttpRequest(void);
 
-    void SetProxy(CWinHttpProxy* pHttpProxy);
+    void SetProxy(ProxyResolver* pHttpProxy);
     BOOL Create(CWinHttpHeader* pHttpHeader);
     BOOL SendRequest(LPVOID lpOptional = NULL, DWORD dwOptionalLength = NULL);
     void Close();
@@ -47,7 +47,7 @@ private:
     HINTERNET m_hConnect;
     HINTERNET m_hRequest;
     CWinHttpHeader* m_pHttpHeader;
-    CWinHttpProxy* m_pHttpProxy;
+    ProxyResolver* m_pHttpProxy;
     VERB_TYPE m_verbType;
     BOOL m_bUserCancel;     // 在接收数据过程中,用户取消HTTP请求
     DWORD m_dwStatusCode;   // HTTP请求状态码

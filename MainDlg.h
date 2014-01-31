@@ -225,7 +225,6 @@ public:
         else if(VERB_TYPE_POST == m_verbType)
         {
             CWinHttpPost httpPost;
-
             if(httpPost.PostRequest(sUrl, sParam))
             {
                 sTemp = httpPost.GetResponse();

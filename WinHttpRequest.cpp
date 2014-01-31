@@ -5,12 +5,14 @@
 CWinHttpRequest::CWinHttpRequest(VERB_TYPE verbType): m_hSession(NULL), m_hConnect(NULL),
     m_hRequest(NULL), m_pHttpHeader(NULL), m_verbType(verbType), m_bUserCancel(FALSE), m_dwStatusCode(0)
 {
-
+    m_pHttpProxy = new ProxyResolver();
 }
 
 
 CWinHttpRequest::~CWinHttpRequest(void)
 {
+    delete m_pHttpProxy;
+    m_pHttpProxy = NULL;
     Close();
 }
 
@@ -53,6 +55,7 @@ BOOL CWinHttpRequest::Create(CWinHttpHeader* pHttpHeader)
     if(NULL == m_hRequest)
         return FALSE;
 
+    // 添加HTTP HEADER
     CString sHttpHeader = m_pHttpHeader->GetHeader();
 
     if(!sHttpHeader.IsEmpty())
@@ -60,6 +63,13 @@ BOOL CWinHttpRequest::Create(CWinHttpHeader* pHttpHeader)
         BOOL bAdd = WinHttpAddRequestHeaders(m_hRequest, sHttpHeader, sHttpHeader.GetLength(), WINHTTP_ADDREQ_FLAG_ADD /*| WINHTTP_ADDREQ_FLAG_REPLACE*/);
 
         if(!bAdd)
+            return FALSE;
+    }
+
+    // 设置代理
+    if(NULL != m_pHttpProxy)
+    {
+        if(ERROR_SUCCESS != m_pHttpProxy->ResolveProxy(m_hRequest, m_pHttpHeader->GetUrl()))
             return FALSE;
     }
 
@@ -100,10 +110,8 @@ void CWinHttpRequest::Close()
     }
 }
 
-void CWinHttpRequest::SetProxy(CWinHttpProxy* pHttpProxy)
+void CWinHttpRequest::SetProxy(ProxyResolver* pHttpProxy)
 {
-    throw _T("No Implementation");
-    assert(NULL == m_pHttpProxy);
     m_pHttpProxy = pHttpProxy;
 }
 
